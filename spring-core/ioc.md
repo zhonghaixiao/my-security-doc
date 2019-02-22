@@ -152,7 +152,7 @@ ConfigurableBeanFactory.setParentBeanFactory 设置parent
 9. *preInstantiateSingletons* 确保所有非延时单例被初始化
 
 
-
+## 
 
 
 ---
