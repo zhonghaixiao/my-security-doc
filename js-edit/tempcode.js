@@ -74,6 +74,6 @@ export default (options = {}) => config => {
 
 
 
-white-space: nowrap;
-text-overflow: ellipsis;
-overflow: hidden;
+// white-space: nowrap;
+// text-overflow: ellipsis;
+// overflow: hidden;
