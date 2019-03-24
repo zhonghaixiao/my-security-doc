@@ -166,6 +166,57 @@ void invokeInitMethods(String beanName, final Object bean, @Nullable RootBeanDef
 ```
 
 # AbstractBeanFactory
+abstract class
+
+main abstract method:
+- getBeanDefinition
+- createBean
+  
+根据beanName获取bean definition,并创建实例
+
+```
+Object getBean(String name) throws BeansException {
+
+}
+
+<T> T doGetBean(final String name, @Nullable final Class<T> requiredType,@Nullable final Object[] args, boolean typeCheckOnly){
+    //获取bean的Name,取出factoryBean的&符号，将alias转换为真实beanName
+    String beanName = transformedBeanName(name);
+    //
+    Object sharedInstance = getSingleton(beanName);
+}
+```
+
+
+## DefaultSingletonBeanRegistry#getSingleton
+获取缓存的单例对象或者其引用(early reference to a currently created singleton ) 
+```
+Object getSingleton(String beanName, boolean allowEarlyReference) {
+    //先从缓存中获取
+    Object singletonObject = this.singletonObjects.get(beanName);
+    //如果获取不到，看一下该bean是否正在创建
+    if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+			synchronized (this.singletonObjects) {
+                //当前的beanName对应的实例正在创建，
+				singletonObject = this.earlySingletonObjects.get(beanName);
+				if (singletonObject == null && allowEarlyReference) {
+                    //获取early reference
+					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
+					if (singletonFactory != null) {
+						singletonObject = singletonFactory.getObject();
+						this.earlySingletonObjects.put(beanName, singletonObject);
+						this.singletonFactories.remove(beanName);
+					}
+				}
+			}
+		}
+		return singletonObject;
+}
+```
+
+## 
+
+# FactoryBeanRegistrySupport
 
 # BeanUtils
 
