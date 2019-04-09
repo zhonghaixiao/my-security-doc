@@ -85,7 +85,6 @@ MyInterfaceType proxy = factory.getProxy();
 
 ## Spring AOP的代理实现
 - JDK动态代理：JDK动态代理技术。通过需要代理的目标类的getClass().getInterfaces()方法获取到接口信息（这里实际上是使用了Java反射技术。getClass()和getInterfaces()函数都在Class类中，Class对象描述的是一个正在运行期间的Java对象的类和接口信息），通过读取这些代理接口信息生成一个实现了代理接口的动态代理Class（动态生成代理类的字节码），然后通过反射机制获得动态代理类的构造函数，并利用该构造函数生成该Class的实例对象（InvokeHandler作为构造函数的入参传递进去），在调用具体方法前调用InvokeHandler来处理。
-- 
 
 
 
