@@ -49,7 +49,14 @@ https://juejin.im/book/5b4bc28bf265da0f60130116/section/5b6a1a9cf265da0f87595521
 https://github.com/netty/netty/tree/4.1/example/src/main/java/io/netty/example
 
 
+## Java学习
+https://github.com/Snailclimb/JavaGuide
 
+https://github.com/crossoverJie/JCSprout
+
+https://github.com/iluwatar/java-design-patterns
+
+https://github.com/eugenp/tutorials
 
 
 
