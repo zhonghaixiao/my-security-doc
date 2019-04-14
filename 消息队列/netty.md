@@ -28,6 +28,13 @@ ch.pipeline().addLast(new DiscardServerHandler());
 - fireChannelRead触发ChannelPipeline中下一个Handler的channelRead(ChannelHandlerContext, Object)方法
 - fireChannelReadComplete 触发下一个handler的channelReadComplete
 
+## 4. MessageToByteEncoder extends ChannelOutboundHandlerAdapter
+encode Object to ByteBuf
+
+## 
+ctx.alloc().ioBuffer(); direct
+ctx.alloc().heapBuffer(); heap buffer , backed by byte array
+
 
 ## 源码解析
 https://github.com/yongshun/learn_netty_source_code
