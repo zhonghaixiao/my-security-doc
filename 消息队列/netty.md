@@ -36,6 +36,14 @@ ctx.alloc().ioBuffer(); direct
 ctx.alloc().heapBuffer(); heap buffer , backed by byte array
 
 
+# 开发
+1. ChannelInboundHandlerAdapter
+2. ByteToMessageDecoder --> ChannelInboundHandlerAdapter
+3. LineBasedFrameDecoder --> ByteToMessageDecoder
+4. DelimiterBasedFrameDecoder --> ByteToMessageDecoder
+5. MessageToMessageDecoder
+6. 
+
 ## 源码解析
 https://github.com/yongshun/learn_netty_source_code
 
