@@ -1,3 +1,20 @@
+# Redis 简介
+
+## 应用
+1. database 数据存储
+2. cache    缓存
+3. message broker   消息代理
+   
+## 支持的数据结构
+1. strings
+2. hash
+3. list
+4. set
+5. sorted set
+
+
+
+
 # Jedis配置
 
 ### Redis数据库索引（默认为0）
