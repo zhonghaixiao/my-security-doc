@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kubia-manual-v2
+  labels: 
+    creation_method: manual
+    env: pod
+spec:
+  containers:
+  - name: kubia
+    image: registry.cn-shanghai.aliyuncs.com/zhongfirst/zhongrepository:1.0
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    ports:
+      - containerPort: 8080
+        protocol: TCP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
