@@ -401,15 +401,407 @@ spec:
 
 ### 通过DNS发现服务
 
+FQDN 全限定域名
+
+> 在pod中运行pod
+
+kubectl.exe exec -it kubia-nwqqp bash
+
+> 访问服务
+
+1. curl http://kubia.default.svc.cluster.local
+2. curl http://kubia.default
+3. curl http://kubia
+
+cat /etc/resolv.conf
+
+ping kubia 不通
+
+## 连接集群外部的服务
+
+EndPoints资源就是暴露一个服务的IP地址和端口的列表，
+
+kubectl get endpoints kubia
+
+### 手动创建服务
+
+> 手动配置服务的endpoint
+
+> 创建没有选择器的服务
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-service
+spec:
+  ports:
+  - port: 800
+```
+
+该服务将接收端口80上传入的连接
+
+> 为没有选择器的服务创建Endpoint资源
+
+```
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: external-service
+subsets:
+  - addresses:
+    - ip: 11.11.11.11
+    - ip: 22.22.22.22
+    ports:
+    - port: 80
+```
+
+> 为外部服务创建别名
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-service
+spec:
+  type: ExternalName
+  externalName: someapi.somecompany.com
+  ports:
+  - port: 80
+```
+
+全限定域名：  external-service.default.svc.cluster.local
+
+## 将服务暴露给外部客户端
+1. 将服务类型设置成NodePort,  在集群节点本身打开一个端口，在该端口上接收到的流量重定向到基础服务
+2. 将服务类型设置成LoadBalance，NodePort的一种扩展  使得服务可以通过专用的负载均衡器访问
+3. Ingress资源，通过一个IP地址公开多个服务，运行在http层
+
+### NodePort
+
+> 创建
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubia-nodeport
+spec:
+  type: NodePort
+  ports:
+  - port: 80      #服务集群ip的端口号
+    targetPort: 8080  #背后pod的目标端口号
+    nodePort: 30123 #通过集群节点的端口号可以访问到服务
+  selector:
+    app: kubia
+```
+
+### 负载均衡器
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubia-loadbalancer
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: kubia
+```
+
+### Ingress
+
+> 创建
+
+```
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kubia
+spec:
+  rules:
+  - host: kubia.example.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: kubia-nodeport
+          servicePort: 80
+```
+
+# 将磁盘挂载到容器
+
+1. 创建多容器pod
+2. 创建一个可以在容器间共享磁盘存储的卷
+3. 在pod中使用git仓库
+4. 将持久性存储挂载到pod
+5. 使用预先配置的持久性存储
+
+pod中的容器共享CPU，RAM,网络接口。但pod中的每个容器有独立的文件系统，文件系统来自于镜像
+
+pod中的容器都可以使用卷，但必须先将它挂载在每一个需要访问它的容器中。在每个容器中，都可以在文件系统的任意位置挂载卷
+
+## 使用卷在容器之间共享数据
+在一个pod的多个容器间共享数据
+
+### emptyDir
+
+> 创建pod
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fortune
+spec:
+  containers:
+  - image: luksa/fortune
+    name: html-generator
+    volumeMounts:
+    - name: html
+      mountPath: /var/htdocs
+  - image: nginx:alpine
+    name: web-server
+    volumeMounts:
+    - name: html
+      mountPath: /usr/share/nginx/html
+      readOnly: true
+    ports:
+    - containerPort: 80
+      protocol: TCP
+  volumes:
+  - name: html
+    emptyDir: 
+      medium: Memory  # 卷文件存储在内存中
+```
+
+kubectl port-forward fortune 8081:80
+
+### 使用git作为仓库存储卷 gitRepo
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gitrepo-volume-pod
+spec:
+  containers:
+  - image: nginx:alpine
+    name: web-server
+    volumeMounts: 
+    - name: html
+      moundPath: /usr/share/nginx/html
+      readOnly: true
+    ports:
+    - containerPort: 80
+      protocol: TCP
+  volumes:
+  - name: html
+    gitRepo:
+      repository: https://github.com/luksa/kubia-website-example.git
+      revision: master  #检测主分支
+      directory: .  #克隆到根目录
+```
+
+## 访问工作节点文件系统上的卷
+
+### hostPath卷
+
+> 检查使用hostPath卷的系统pod
+
+kubectl get pods --namespace kube-system
 
 
+## 使用持久化存储
 
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mongodb
+spec:
+  volumes:
+  - name: mongodb-data
+    gcePersistentDisk:
+      pdName: mongodb
+      fsType: ext4
+  containers:
+  - image: mongo
+    name: mongodb
+    volumeMounts:
+    - name: mongodb-data
+      mountPath: /data/db
+    ports:
+    - containerPort: 27017
+      protocol: TCP
+```
+
+> 挂载nfs
+
+```
+volumes:
+- name: mongodb-data
+  nfs:
+    server: 1.2.3.4
+    path: /some/path
+```
+
+## 创建持久卷和持久卷声明pvc
+
+# ConfigMap和Secret
+
+1. 更改容器主进程
+2. 将命令行选项传递给应用程序
+3. 设置暴露给应用程序的环境变量
+4. 通过ConfigMap配置应用程序
+5. 通过Secret传递敏感配置信息
+
+> 传递配置选项给运行在kubernete上的应用程序
+
+## 配置容器化应用程序
+1. 向容器传递命令行参数
+2. 为每个容器设置自定义环境变量
+3. 通过特殊类型的卷将配置文件挂载到容器中
+
+### 向容器传递命令行参数
+
+1. entrypoint 定义容器启动时被调用的可执行程序
+2. cmd 指定传递给entrypoint的参数
+
+docker run <image> <arguments> docker容器运行时添加参数，覆盖dockerfile中任何由cmd指定的默认参数值
+
+1. shell形式： entrypoint node app.js
+2. exec形式：  entrypoint ["node", "app.js"]
+
+exec形式直接运行进程，无需打开shell启动进程
+
+```
+from ubuntu:latest
+run apt-get update ; apt-get -y install fortune
+add fortuneloop.sh /bin/fortuneloop.sh
+entrypoint ["/bin/fortuneloop.sh"]
+cmd ["10"]
+```
+
+> 在pod中覆盖参数
+
+```
+kind: Pod
+spec:
+  containers:
+  - image:  some/image
+    command: ["/bin/command"]
+    args: ["arg1", "arg2", "arg3"]
+```
+
+### 为容器设置环境变量
+```
+kind: Pod
+spec:
+  containers:
+  - image: luksa/fortune:env
+    env:
+    - name: INTERVAL  
+      value: "30"
+    name: html-generator
+```
+
+> 在环境变量中引用环境变量
+
+```
+env:
+- name: FIRST_VAR
+  value: "foo"
+- name: SECOND_VAR
+  value: "$(FIRST_VAR)bar"
+```
+## ConfigMap 解耦配置
+键值对， 应用无需读取文件，映射的内容通过环境变量或者卷文件的形式传递给容器
+
+将配置存放在独立的资源对象中有助于在不同环境下拥有多份同名配置清单， pod通过名称引用ConfigMap,因此可以在多环境下使用pod定义描述,同时保持不同的配置值以适应不同环境
+
+可以使用不同的配置清单创建同名的ConfigMap对象
+
+> 创建ConfigMap
+
+kubectl create configmap fortune-config --from-literal=sleep-interval=25
+
+kubectl create configmap fortune-config --from-literal=sleep-interval=25 --from-literal=one=two
+
+> 从文件创建
+
+kubectl create configmap fortune-config --from-file=customkey=config-file.conf
+
+> 从文件夹创建
+
+kubectl create configmap fortune-config --from-file=/path/to/dir
+
+### 给容器传递ConfigMap
+```
+kind: Pod
+metadata:
+  name: fortune-env-from-configmap
+spec:
+  containers:
+  - image: luksa/fortune:env
+    env:
+    - name: INTERVAL
+      valueFrom:
+        configMapKeyRef:
+          name: fortune-config
+          key: sleep-interval
+```
+
+> 暴露ConfigMap中的所有条目作为环境变量
+
+```
+spec:
+  containers:
+  - image: some-image
+    envFrom:
+    - prefix: CONFIG_
+      configMapRef:
+        name: my-config-map
+```
+
+### 传递ConfigMap条目作为命令行参数
+```
+kind: Pod
+metadata:
+  name: fortune-args-from-configmap
+spec:
+  containers:
+  - image: luksa/fortune-args
+    env:
+    - name: INTERVAL
+      valueFrom:
+        configMapKeyRef:
+          name: fortune-config
+          key: sleep-interval
+    args: ["$(INTERVAL)"]
+```
+
+### 使用ConfigMap卷将条目暴露为文件
+
+> 删除configmap
+
+ kubectl delete configmap fortune-config
+
+ > 从文件夹创建configmap
+
+  kubectl create configmap fortune-config --from-file=configmap-files
+
+> 查看configmap
+
+kubectl get configmap fortune-config -o yaml
 
 ### 缩写
 1. replicationcontroller rc
 2. pods po
 3. service svc
-
 
 
 
@@ -422,6 +814,9 @@ spec:
 - kubectl get services
 - kubectl get replicationcontrollers
 - kubectl explain pods
+- kubectl get pod --all-namespaces 列出所有命名空间中的资源
+
+
 
 
 - ps aux
