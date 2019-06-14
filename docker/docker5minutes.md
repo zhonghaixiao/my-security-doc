@@ -37,16 +37,19 @@ system restart docker.service
 docker可以将任何应用及其依赖打包成一个轻量级、可移植、自包含的容器
 
 ## 命令
-1. attach attact local standard input ,output, and error streams to a running container
-2. docker exec -it [id] /bin/bash
-3. docker container ls
-4. docker ps -a
-5. docker pull hello-world
-6. docker images hello-world
-7. docker run --rm hello-world  退出即删除容器
-8. docker commit old new
-9. docker build -t ubuntu1 .
-10. 
+1.  attach attact local standard input ,output, and error streams to a running container
+2.  docker exec -it [id] /bin/bash
+3.  docker container ls
+4.  docker ps -a
+5.  docker pull hello-world
+6.  docker images hello-world
+7.  docker run --rm hello-world  退出即删除容器
+8.  docker commit old new
+9.  docker build -t ubuntu1 .
+10. docker volume ls
+11. docker run --name bbox -v /test/data busybox
+12. docker volume rm 
+13. docker volume rm $(docker volume ls -q)
 
 add 如果文件是归档文件，自动解压缩
 
