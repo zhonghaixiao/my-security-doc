@@ -937,8 +937,15 @@ await方法：
         }
 ```
 
+# blog about condition
+- condition
+https://www.cnblogs.com/sheeva/p/6484224.html
 
+- 锁
+https://www.cnblogs.com/sheeva/p/6439335.html
 
+- reentrantlock
+https://www.cnblogs.com/sheeva/p/6472949.html
 
 
 
