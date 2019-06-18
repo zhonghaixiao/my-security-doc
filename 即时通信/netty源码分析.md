@@ -21,15 +21,45 @@
 12. ChannelHander  表示数据流经过的处理器，可以理解为流水线上的每一道关卡
 
 
+# 服务端启动
+
+## ServerBootstrap
+
+- bind(new InetSocketAddress(inetPort))
+- ChannelFuture bind(SocketAddress localAddress)
+  - validate() check group,channelFactory not null
+  - ChannelFuture doBind(SocketAddress localAddress)
+
+1. initAndRegister()
+2. 
 
 
 
 
 
+- group(parentGroup, childGroup):
+  - group = parentGroup: 处理创建channel的事件，即连接接入事件，(acceptor)
+  - childGroup = childGroup, 
+    这些EventLoopGroup用来处理ServerChannel和Channel的事件，和IO读写
 
+- channelFactory: 
+- channel(Class<? extends C> channelClass)
+  - channel(NioServerSocketChannel.class)
+    - channelFactory(new ReflectiveChannelFactory(channelClass))
+      - this.channelFactory = channelFactory;
 
+- ReflectiveChannelFactory extends ChannelFactory
+  - newChannel() --> clazz.newInstance()
 
+## AbstractBootstrap
 
+## AbstractBootstrapConfig
+
+## ServerBootstrapAcceptor
+
+## DefaultChannelPromise
+
+## NioUnsafe
 
 
 
