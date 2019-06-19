@@ -47,6 +47,24 @@ rpc服务端接收器rpcAcceptor接收客户端的调用请求，同样使用RPC
 2. 编码， 远程通信需要将信息进行编码以及解码，（protobuf）
 3. 客户端代理， rpc将远程调用本地化，采用动态代理
 
+# 影响RPC效率的因素
+1. 传输方式     http, tcp
+2. 序列化       protobuf,kryo,hessian,Jackson
+
+# 实现一个rpc框架
+1. TCP协议
+2. NIO
+3. 序列化
+4. 服务注册与发现
+
+1. Spring
+2. Netty
+3. Protostuff 基于protobuf框架
+4. zookeeper
+
+
+
+
 
 
 
