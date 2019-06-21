@@ -62,7 +62,13 @@ rpc服务端接收器rpcAcceptor接收客户端的调用请求，同样使用RPC
 3. Protostuff 基于protobuf框架
 4. zookeeper
 
+## 继续实现
 
+1. 服务端在单独线程池中调用服务
+2. 多种序列化方式的支持
+3. 服务注册使用zookeeper
+4. 与spring集成，使用注解标记导出服务接口与实现类
+5. 服务注册方式拓展至多种注册中心方式
 
 
 
